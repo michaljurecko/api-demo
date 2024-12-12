@@ -1,0 +1,61 @@
+FROM golang:1.23.4
+
+# Set home directory,
+# We can use a non-root user with the same UID/GID as on the host,
+# without home directory in the container.
+ENV HOME=/home/user
+RUN mkdir -p $HOME && chmod -R 1777 $HOME
+
+# Set cache directories
+ENV GOCACHE=/tmp/cache/go
+ENV GOMODCACHE=/tmp/cache/go-mod
+ENV GOLANGCI_LINT_CACHE=/tmp/cache/golangci-lint
+
+# Set simple prompt
+RUN echo 'PS1="\w > "' > ~/.bashrc
+
+# Allow the execution of binaries installed by "go install"
+ENV GOBIN=$GOPATH/bin
+ENV PATH=$PATH:$GOBIN
+
+# Install tools
+RUN apt-get update && apt-get install --no-install-recommends --yes \
+micro curl protobuf-compiler graphviz build-essential
+ENV EDITOR=micro
+
+# Install log viewer
+RUN curl -L -o /usr/local/bin/fblog https://github.com/brocode/fblog/releases/download/v4.13.1/fblog && \
+    chmod +x /usr/local/bin/fblog
+
+# Install proto compilers
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
+    go install connectrpc.com/connect/cmd/protoc-gen-connect-go@latest && \
+    go install github.com/sudorandom/protoc-gen-connect-openapi@main
+
+# Install wire dependency injection tool
+RUN go install github.com/google/wire/cmd/wire@latest
+
+# Install dependencies update tool
+RUN go install github.com/oligot/go-mod-upgrade@latest
+
+# Install Js tools to generate JS client
+RUN apt-get install -y nodejs npm
+RUN npm --global install typescript tsx @bufbuild/protoc-gen-es @bufbuild/protobuf @connectrpc/connect @connectrpc/connect-web
+
+# Install buf tool
+# https://github.com/bufbuild/buf
+COPY --from=bufbuild/buf:latest /usr/local/bin/buf /usr/local/bin/buf
+
+# Install linter
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $GOBIN v1.62.2
+
+# Install tests analyzer
+RUN go install github.com/mfridman/tparse@v0.16.0
+
+# Set permissions for non-root user
+RUN chmod -R 1777 $GOPATH && \
+    mkdir -p $GOCACHE && chmod -R 1777 $GOCACHE && \
+    mkdir -p $GOMODCACHE && chmod -R 1777 $GOMODCACHE && \
+    mkdir -p $GOLANGCI_LINT_CACHE && chmod -R 1777 $GOLANGCI_LINT_CACHE
+
+CMD ["/bin/bash"]

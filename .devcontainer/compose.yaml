@@ -1,0 +1,60 @@
+name: ch-demo
+
+services:
+  dev: &dev
+    build:
+      context: .
+      dockerfile: Containerfile
+    links:
+      - telemetry
+      - redis
+    working_dir: /code
+    volumes:
+      - ..:/code
+      - go-cache:/tmp/cache
+    ports:
+      - "8000:8000"
+    environment:
+      DEMO_REDIS_ADDRESS: redis:6379
+      DEMO_REDIS_USERNAME: default
+      DEMO_REDIS_PASSWORD: ""
+      DEMO_REDIS_DB: 0
+
+    env_file:
+      - ../env.local
+
+  dev-no-ports: # for IDE build/tests, etc.
+    <<: *dev
+    ports: []
+
+  redis:
+    image: redis:7.4.1
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    links:
+      - redis
+    ports:
+      - "5540:5540"
+
+  telemetry:
+    image: openobserve/openobserve
+    volumes:
+      - ..:/code
+      - tel-data:/tmp/cachestore
+    ports:
+      - "5080:5080"
+    environment:
+      ZO_ROOT_USER_EMAIL: root@root.com
+      ZO_ROOT_USER_PASSWORD: root
+      ZO_DATA_DIR: /data
+
+volumes:
+  go-cache:
+  tel-data:
