@@ -1,0 +1,23 @@
+version: v2
+clean: true
+plugins:
+  - local: protoc-gen-go
+    out: gen/go
+    opt:
+      - paths=source_relative
+  - local: protoc-gen-connect-go
+    out: gen/go
+    opt:
+      - paths=source_relative
+  - local: protoc-gen-es
+    out: gen/ts
+    include_imports: true
+    opt:
+      - target=ts
+  - local: protoc-gen-connect-openapi
+    out: gen
+    opt:
+      - path=openapi.yaml
+      - content-types=json
+inputs:
+  - directory: proto

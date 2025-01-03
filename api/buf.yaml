@@ -1,0 +1,14 @@
+version: v2
+lint:
+  use:
+    - STANDARD
+breaking:
+  use:
+    - FILE
+modules:
+  - path: proto
+deps:
+  - buf.build/bufbuild/protovalidate # https://buf.build/bufbuild/protovalidate
+  - buf.build/googleapis/googleapis # https://buf.build/googleapis/googleapis
+  - buf.build/grpc-ecosystem/grpc-gateway # https://buf.build/grpc-ecosystem/grpc-gateway
+  - buf.build/gnostic/gnostic # https://github.com/google/gnostic
