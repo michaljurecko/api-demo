@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+package demo.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/michaljurecko/ch-demo/api/gen/go/demo/v1;api";
+
+// https://github.com/bufbuild/protovalidate/blob/main/docs/custom-constraints.md
+extend buf.validate.StringRules {
+  optional bool custom_phone = 999001 [(buf.validate.predefined).cel = {
+    id: "phone"
+    message: "phone number must be in international format, e.g. '+421905123456'."
+    expression: "this.matches('^\\\\+[1-9][0-9]{1,14}$')"
+  }];
+
+  optional bool custom_ic = 999002 [(buf.validate.predefined).cel = {
+    id: "ic"
+    message: "value is not valid IČO."
+    // https://cs.wikipedia.org/wiki/Identifika%C4%8Dn%C3%AD_%C4%8D%C3%ADslo_osoby
+    expression: "this.matches('^[0-9]{8}$') && ( ( 11 - ( int(this.charAt(0)) * 8 + int(this.charAt(1)) * 7 + int(this.charAt(2)) * 6 + int(this.charAt(3)) * 5 + int(this.charAt(4)) * 4 + int(this.charAt(5)) * 3 + int(this.charAt(6)) * 2 ) % 11 ) % 10) == int(this.charAt(7))" // validate checksum
+  }];
+
+  optional bool custom_vat_id = 999003 [(buf.validate.predefined).cel = {
+    id: "vatID"
+    message: "value is not valid IČ DPH."
+    // https://cs.wikipedia.org/wiki/Da%C5%88ov%C3%A9_identifika%C4%8Dn%C3%AD_%C4%8D%C3%ADslo
+    expression: "this.matches('^CZ[0-9]{8-10}$')"
+  }];
+}

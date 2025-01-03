@@ -1,0 +1,326 @@
+syntax = "proto3";
+
+package demo.v1;
+
+import "buf/validate/validate.proto";
+import "demo/v1/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/michaljurecko/ch-demo/api/gen/go/demo/v1;api";
+option (gnostic.openapi.v3.document) = {
+  servers: {url: "http://localhost:8000"}
+};
+
+service ApiService {
+  rpc ListClasses(google.protobuf.Empty) returns (ListClassesResponse);
+  rpc ListRaces(google.protobuf.Empty) returns (ListRacesResponse);
+
+  rpc CreatePlayer(CreatePlayerRequest) returns (Player);
+  rpc UpdatePlayer(UpdatePlayerRequest) returns (Player);
+  rpc DeletePlayer(DeletePlayerRequest) returns (google.protobuf.Empty);
+  rpc GetPlayer(GetPlayerRequest) returns (Player);
+
+  rpc ListPlayersAndCharacters(google.protobuf.Empty) returns (ListPlayersAndCharactersResponse);
+  rpc CreateCharacter(CreateCharacterRequest) returns (Character);
+  rpc UpdateCharacter(UpdateCharacterRequest) returns (Character);
+  rpc DeleteCharacter(DeleteCharacterRequest) returns (google.protobuf.Empty);
+  rpc GetCharacter(GetCharacterRequest) returns (Character);
+}
+
+message Class {
+  string id = 1 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+  string name = 2 [
+    (buf.validate.field).string.example = "Warrior",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 100
+  ];
+  int32 strength_base = 3;
+  string description = 4 [
+    (buf.validate.field).string.example = "A brave warrior with unmatched strength.",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 500
+  ];
+  int32 intelligence_base = 5;
+  int32 charisma_base = 6;
+  int32 dexterity_base = 7;
+}
+
+message Race {
+  string id = 1 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+  string name = 2 [
+    (buf.validate.field).string.example = "Elf",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 100
+  ];
+  string description = 3 [
+    (buf.validate.field).string.example = "A mystical race with high intelligence and agility.",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 500
+  ];
+  int32 strength_base = 4;
+  int32 charisma_base = 5;
+  int32 intelligence_base = 6;
+  int32 dexterity_base = 7;
+}
+
+message ListClassesResponse {
+  repeated Class classes = 1;
+}
+
+message ListRacesResponse {
+  repeated Race races = 1;
+}
+
+message Player {
+  string id = 1 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+  string first_name = 10 [
+    (buf.validate.field).string.example = "John",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 50
+  ];
+  string last_name = 11 [
+    (buf.validate.field).string.example = "Brown",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 50
+  ];
+  string phone = 12 [
+    (buf.validate.field).string.example = "+421905123456",
+    (buf.validate.field).string.(custom_phone) = true
+  ];
+  string email = 13 [(buf.validate.field).string.email = true];
+  string ic = 14 [
+    (buf.validate.field).string.example = "25596641",
+    (buf.validate.field).string.(custom_ic) = true
+  ];
+  string address = 15 [
+    (buf.validate.field).string.example = "Na Příkopě 123/45, Praha 1, 110 00",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 200
+  ];
+  string vat_id = 16 [
+    (buf.validate.field).string.example = "CZ25596641",
+    (buf.validate.field).string.(custom_vat_id) = true
+  ];
+}
+
+message CreatePlayerRequest {
+  string first_name = 10 [
+    (buf.validate.field).string.example = "John",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 50
+  ];
+  string last_name = 11 [
+    (buf.validate.field).string.example = "Brown",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 50
+  ];
+  string phone = 12 [
+    (buf.validate.field).string.example = "+421905123456",
+    (buf.validate.field).string.(custom_phone) = true
+  ];
+  string email = 13 [(buf.validate.field).string.email = true];
+  string ic = 14 [
+    (buf.validate.field).string.example = "25596641",
+    (buf.validate.field).string.(custom_ic) = true
+  ];
+}
+
+message UpdatePlayerRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  google.protobuf.FieldMask update_mask = 2 [(gnostic.openapi.v3.property).type = "string"];
+  string first_name = 10 [
+    (buf.validate.field).string.example = "John",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 50
+  ];
+  string last_name = 11 [
+    (buf.validate.field).string.example = "Brown",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 50
+  ];
+  string phone = 12 [
+    (buf.validate.field).string.example = "+421905123456",
+    (buf.validate.field).string.(custom_phone) = true
+  ];
+  string email = 13 [(buf.validate.field).string.email = true];
+  string ic = 14 [
+    (buf.validate.field).string.example = "25596641",
+    (buf.validate.field).string.(custom_ic) = true
+  ];
+}
+
+message DeletePlayerRequest {
+  string id = 1 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message GetPlayerRequest {
+  string id = 1 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message Character {
+  string id = 1 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+  string name = 2 [
+    (buf.validate.field).string.example = "Gandalf",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 100
+  ];
+  //  int32 level = 3 [
+  //    (buf.validate.field).int32.gte = 1,
+  //    (buf.validate.field).int32.lte = 20
+  //  ];
+  int32 strength = 4 [
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 100
+  ];
+  int32 dexterity = 5 [
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 100
+  ];
+  int32 intelligence = 6 [
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 100
+  ];
+  int32 charisma = 7 [
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 100
+  ];
+  string class_id = 8 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+  string race_id = 9 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+  string player_id = 10 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message ListPlayersAndCharactersResponse {
+  repeated CharactersPerPlayer players = 1;
+}
+
+message CharactersPerPlayer {
+  Player player = 1;
+  repeated Character characters = 2;
+}
+
+message CreateCharacterRequest {
+  string name = 3 [
+    (buf.validate.field).string.example = "Gandalf",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 100
+  ];
+  //  int32 level = 4 [
+  //    (buf.validate.field).int32.gte = 1,
+  //    (buf.validate.field).int32.lte = 20
+  //  ];
+  int32 strength = 5 [
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 20
+  ];
+  int32 dexterity = 6 [
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 20
+  ];
+  int32 intelligence = 7 [
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 20
+  ];
+  int32 charisma = 8 [
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 20
+  ];
+  string class_id = 9 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+  string race_id = 10 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+  string player_id = 11 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+
+message UpdateCharacterRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  google.protobuf.FieldMask update_mask = 2 [(gnostic.openapi.v3.property).type = "string"];
+  string name = 3 [
+    (buf.validate.field).string.example = "Gandalf",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 100
+  ];
+  //  int32 level = 4 [
+  //    (buf.validate.field).int32.gte = 1,
+  //    (buf.validate.field).int32.lte = 20
+  //  ];
+  int32 strength = 5 [
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 20
+  ];
+  int32 dexterity = 6 [
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 20
+  ];
+  int32 intelligence = 7 [
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 20
+  ];
+  int32 charisma = 8 [
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 20
+  ];
+  string class_id = 9 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+  string race_id = 10 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+  string player_id = 11 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message DeleteCharacterRequest {
+  string id = 1 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message GetCharacterRequest {
+  string id = 1 [
+    (buf.validate.field).string.example = "00000000-0000-0000-0000-000000000001",
+    (buf.validate.field).string.min_len = 1
+  ];
+}
