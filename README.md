@@ -4,44 +4,45 @@ This repository contains a sample backend API implemented in Go as part of a job
 
 ## Table of Contents
 
-1. [Analysis](#analysis)
-    1. [Task Summary](#task-summary)
-    2. [Additional Information](#additional-information)
-    3. [Microsoft Dataverse Specifics](#microsoft-dataverse-specifics)
-2. [Implementation Details](#implementation-details)
-    1. [Directory Structure](#directory-structure)
-    2. [Docker Containers](#docker-containers)
-    3. [Makefile](#makefile)
-    4. [Linter](#linter)
-    5. [Telemetry](#telemetry)
-        - [Logs](#logs)
-    6. [Graceful Shutdown](#graceful-shutdown)
-    7. [Configuration](#configuration)
-    8. [Dependency Management](#dependency-management)
-3. [Dataverse Model](#dataverse-model)
-    1. [HTTP Client](#http-client)
-    2. [Metadata API Client](#metadata-api-client)
-    3. [Entity & Repository Generator](#entity--repository-generator)
-    4. [Generated Model](#generated-model)
-    5. [Testing the Generated Model](#testing-the-generated-model)
-4. [API Service](#api-service)
-    1. [Protocol Buffers Definition](#protocol-buffers-definition)
-    2. [Connect RPC Server](#connect-rpc-server)
-        - [Generated Go Server](#generated-go-server)
-        - [Generated JS/TS Client](#generated-jsts-client)
-5. [Service Implementation](#service-implementation)
-    1. [Redis Cache](#redis-cache)
-6. [Demo](#demo)
-7. [Tests](#tests)
-8. [TODO](#todo)
-9. [Summary](#summary)
+<details>
+<summary>Expand</summary>
 
+1. [Analysis](#analysis)
+	1. [Task Summary](#task-summary)
+	2. [Additional Information](#additional-information)
+	3. [Microsoft Dataverse Specifics](#microsoft-dataverse-specifics)
+2. [Implementation Summary](#implementation-summary)
+3. [Implementation Details](#implementation-details)
+	1. [Directory Structure](#directory-structure)
+	2. [Docker Containers](#docker-containers)
+	3. [Makefile](#makefile)
+	4. [Linter](#linter)
+	5. [Telemetry](#telemetry)
+	6. [Graceful Shutdown](#graceful-shutdown)
+	7. [Configuration](#configuration)
+	8. [Dependency Management](#dependency-management)
+4. [Dataverse Model](#dataverse-model)
+	1. [HTTP Client](#http-client)
+	2. [Metadata API Client](#metadata-api-client)
+	3. [Entity & Repository Generator](#entity--repository-generator)
+	4. [Generated Model](#generated-model)
+	5. [Testing the Generated Model](#testing-the-generated-model)
+5. [API Service](#api-service)
+	1. [Protocol Buffers Definition](#protocol-buffers-definition)
+	2. [Connect RPC Server](#connect-rpc-server)
+		- [Generated Go Server](#generated-go-server)
+		- [Generated JS/TS Client](#generated-jsts-client)
+6. [Service Implementation](#service-implementation)
+7. [Demo](#demo)
+8. [Tests](#tests)
+9. [TODO](#todo)
+</details>
 
 ## Analysis
 
 ### Task Summary
 - **Data is stored in the low-code platform [Microsoft Dataverse](https://learn.microsoft.com/en-us/power-apps/maker/data-platform/data-platform-intro), accessed via [OData Web API](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/overview).**
-- List of tables: `Player`, `Character`, `Class`, `Race`, `DiceRoll`.
+- Tables: `Player`, `Character`, `Class`, `Race`, `DiceRoll`.
 - A dedicated endpoint should return all `Players` and their `Characters`, **using a Redis cache**.
 - There should be a simple business logic:
   - The **`Player`** fields `VatId` and `Address` should be fetched automatically from the [ARES](https://ares.gov.cz/stranky/vyvojar-info) service.
@@ -52,7 +53,7 @@ This repository contains a sample backend API implemented in Go as part of a job
       - Random value from the `DiceRoll`. The roll is stored for audit purposes.
 
 ### Additional Information
-- Development is optimized for a small team of 1–2 Go developers and 1–2 UI developers.
+- Development should be optimized for a small team of 1–2 Go developers and 1–2 UI developers.
 - The backend is consumed primarily by Vue.js UI.
 - The solution is tailored for agile development and fast modifications.
 
@@ -62,25 +63,29 @@ This repository contains a sample backend API implemented in Go as part of a job
 
 -------------------------------------
 
-### Summary
+## 📝 Implementation Summary
 
 - 🚀 Designed for rapid development in a small team with easy testing:
 	- Fast, high-quality development is enabled by the right technology choices.
-- ⚡ API structure defined using Protocol Buffers.
-	- Go server and JS/TS client are generated using ConnectRPC, read more.
+	- [Dependencies](go.mod) are selected with a focus on long-term maintainability and easy updates.
+    - The code is divided into small, single-purpose, easily testable packages.
+- ⚡ [API structure](api/proto/demo/v1/api.proto) is defined using Protocol Buffers format.
+	- Go server and JS/TS client for UI are generated using Connect RPC, [read more](#connect-rpc-server).
 - 🤖 Development benefits from AI assistance:
 	- AI is used to modify or extend the API by adjusting Protocol Buffer definitions.
-	- Definitions are much shorter as a code itself, reducing issues with AI's context size limitations.
-	- The language is limited, decreasing the risk of errors.
+	- [Definitions](api/proto/demo/v1/api.proto) are much shorter as a code itself, reducing issues with AI's context size limitations.
+	- The `proto` definition language is limited, decreasing the risk of errors.
 	- There is no variability in code style.
-	- 🕵️‍♂️ As a result, reviewing the generated definitions is much simpler than reviewing generated code. 
+	- As a result, 🕵️‍♂️ reviewing the generated definitions is much simpler than reviewing a generated code. 
     - Business logic code is also streamlined with AI, focusing solely on the logic itself.
 - ✔️ Automatic input/output validation:
-	- Validation rules are part of the Protocol Buffers definition.
+	- Validation rules are part of the Protocol Buffers [definitions](api/proto/demo/v1/api.proto).
 - 📊 OpenTelemetry standard manages logs, traces, and metrics:
-	- Data can be exported to various services.
-- ✍ Manual work was minimized also on the model side.
-	- The Dataverse model was used to generate Go entities and repositories.
+	- Data can be exported to various services, [read more](#telemetry).
+- ✍ Manual work was minimized.
+  - The Dataverse model was used to generate Go entities and repositories, [read more](#dataverse-model).
+  - Dependency injection is automated with Google Wire code generator, [read more](#dependency-management).
+- ✅ Functionality is validated by end-to-end tests, [read more](#tests).
 - ⏱️ Implementation took approximately 5MD.
 	- Most time was spent on Dataverse: studying and creating the code generator.
 	- Significant effort went into selecting technologies for the API.
@@ -194,13 +199,14 @@ Metrics:
 - Each part is independently testable.
 - All partial configurations combine into the application configuration.
 - Configuration can be set using ENVs or CLI flags.
+- If needed in the future, the configuration can also be loaded from a YAML or JSON file.
 
 Partial configurations:
 - Logger: [internal/pkg/common/log/config/config.go](internal/pkg/common/log/config/config.go)
 - Telemetry: [internal/pkg/common/telemetry/config/config.go](internal/pkg/common/telemetry/config/config.go)
 - Dataverse Web API: [internal/pkg/common/dataverse/webapi/config.go](internal/pkg/common/dataverse/webapi/config.go)
 - Server: [internal/pkg/app/demo/server/config/config.go](internal/pkg/app/demo/server/config/config.go)
-- Redis: [internal/pkg/common/cache/redis/config.go](internal/pkg/common/cache/redis/config.go)
+- Redis: [internal/pkg/common/cache/redis/config.go](internal/pkg/common/redis/config/config.go)
 
 Run `go run ./cmd/demo --help` to see all available options:
 <details>
@@ -212,48 +218,27 @@ Usage: demo [flags]
 Note: Each flag can be set as an ENV.
 
 Flags:
-  -h, --help                      Show context-sensitive help.
-      --logger-exporter="none"    Type of log exporter, one of [ none, http ]
-                                  ($DEMO_LOGGER_EXPORTER).
-      --logger-http-endpoint-url="http://localhost:4318/v1/logs"
-                                  Endpoint URL for log exporter
-                                  ($DEMO_LOGGER_HTTP_ENDPOINT_URL).
-      --logger-http-authorization="Basic ...."
-                                  Authorization for log exporter
-                                  ($DEMO_LOGGER_HTTP_AUTHORIZATION).
-      --telemetry-trace-exporter="none"
-                                  Type of telemetry trace exporter, one of [
-                                  none, http ] ($DEMO_TELEMETRY_TRACE_EXPORTER).
-      --telemetry-trace-http-endpoint-url="http://localhost:4318/v1/traces"
-                                  Endpoint URL for HTTP traces exporter
-                                  ($DEMO_TELEMETRY_TRACE_HTTP_ENDPOINT_URL).
-      --telemetry-trace-http-authorization="Basic ...."
-                                  Authorization for traces exporter
-                                  ($DEMO_TELEMETRY_TRACE_HTTP_AUTHORIZATION).
-      --telemetry-metric-exporter="none"
-                                  Type of telemetry metric exporter,
-                                  one of [ none, http ]
-                                  ($DEMO_TELEMETRY_METRIC_EXPORTER).
-      --telemetry-metric-http-endpoint-url="http://localhost:4318/v1/metrics"
-                                  Endpoint URL for HTTP metrics exporter
-                                  ($DEMO_TELEMETRY_METRIC_HTTP_ENDPOINT_URL).
-      --telemetry-metric-http-authorization="Basic ...."
-                                  Authorization for metrics exporter
-                                  ($DEMO_TELEMETRY_METRIC_HTTP_AUTHORIZATION).
-      --server-listen-address="0.0.0.0:8000"
-                                  Listen address of API HTTP server
-                                  ($DEMO_SERVER_LISTEN_ADDRESS).
-      --model-tenant-id=STRING    ($DEMO_MODEL_TENANT_ID)
-      --model-client-id=STRING    ($DEMO_MODEL_CLIENT_ID)
-      --model-client-secret=STRING
-                                  ($DEMO_MODEL_CLIENT_SECRET)
-      --model-api-host=STRING     ($DEMO_MODEL_API_HOST)
-      --model-debug-request       ($DEMO_MODEL_DEBUG_REQUEST)
-      --model-debug-response      ($DEMO_MODEL_DEBUG_RESPONSE)
-      --redis-address=STRING      ($DEMO_REDIS_ADDRESS)
-      --redis-username=STRING     ($DEMO_REDIS_USERNAME)
-      --redis-password=STRING     ($DEMO_REDIS_PASSWORD)
-      --redis-db=0                ($DEMO_REDIS_DB)
+  -h, --help
+      --logger-exporter="none"  ($DEMO_LOGGER_EXPORTER)
+      --logger-http-endpoint-url="http://localhost:4318/v1/logs"  ($DEMO_LOGGER_HTTP_ENDPOINT_URL)
+      --logger-http-authorization="Basic ...."  ($DEMO_LOGGER_HTTP_AUTHORIZATION)
+      --telemetry-trace-exporter="none"  ($DEMO_TELEMETRY_TRACE_EXPORTER)
+      --telemetry-trace-http-endpoint-url="http://localhost:4318/v1/traces"  ($DEMO_TELEMETRY_TRACE_HTTP_ENDPOINT_URL)
+      --telemetry-trace-http-authorization="Basic ...."  ($DEMO_TELEMETRY_TRACE_HTTP_AUTHORIZATION)
+      --telemetry-metric-exporter="none"  ($DEMO_TELEMETRY_METRIC_EXPORTER)
+      --telemetry-metric-http-endpoint-url="http://localhost:4318/v1/metrics"  ($DEMO_TELEMETRY_METRIC_HTTP_ENDPOINT_URL)
+      --telemetry-metric-http-authorization="Basic ...."  ($DEMO_TELEMETRY_METRIC_HTTP_AUTHORIZATION)
+      --server-listen-address="0.0.0.0:8000"  ($DEMO_SERVER_LISTEN_ADDRESS)
+      --model-tenant-id=STRING  ($DEMO_MODEL_TENANT_ID)
+      --model-client-id=STRING  ($DEMO_MODEL_CLIENT_ID)
+      --model-client-secret=STRING  ($DEMO_MODEL_CLIENT_SECRET)
+      --model-api-host=STRING  ($DEMO_MODEL_API_HOST)
+      --model-debug-request  ($DEMO_MODEL_DEBUG_REQUEST)
+      --model-debug-response  ($DEMO_MODEL_DEBUG_RESPONSE)
+      --redis-address=STRING  ($DEMO_REDIS_ADDRESS)
+      --redis-username=STRING  ($DEMO_REDIS_USERNAME)
+      --redis-password=STRING  ($DEMO_REDIS_PASSWORD)
+      --redis-db=0  ($DEMO_REDIS_DB)
 ```
 </details>
 
@@ -280,6 +265,10 @@ Example:
 ### Dataverse Model
 
 **The main challenge was integrating the Dataverse low-code model with Go.**
+
+As mentioned in the [Analysis](#analysis), Dataverse and Go are not a typical combination of technologies. 
+- There are no high-quality pre-built solutions available. 
+- However, since it was a strict requirement of the assignment, I took on the challenge and made it work.
 
 #### HTTP Client
 
@@ -364,19 +353,19 @@ Further examples are demonstrated in the API Service section below.
 - I chosen [ConnectRPC](https://connectrpc.com/).
 - The code is generated using `make gen-api`. 
 
-**Advantages**
+##### Advantages
 - Fewer layers compared to alternatives.
 - Part of the [Cloud Native Computing Foundation](https://www.cncf.io/projects/connect-rpc/).
 - Utilizes many components from Go's standard library, ensuring higher reliability.
 - Built on HTTP, without requiring HTTP/2, making browser calls straightforward.
 
-**Things that can surprise**
+##### Things that can surprise
 - All requests use HTTP `POST` method.
 - Connect RPC does not seek to be compatible with REST standards and OpenAPI.
 - And hence its simplicity, for examples fields are not separated between `query` and `body`.
 - These are advantages, especially in our case, when the API is directly consumed by the UI.
 
-**Alternatives**
+##### Alternatives
 - [gRPC](https://grpc.io/) 
   - More suitable for communication between microservices
   - Requires HTTP/2.
@@ -384,9 +373,9 @@ Further examples are demonstrated in the API Service section below.
   - Allows for RESTful API generation from gRPC definitions.
   - More complex, requires more components.
 
-**Comparison: Connect RPC vs gRPC-Gateway**
+##### Comparison: Connect RPC vs gRPC-Gateway
 
-- If necessary, the definitions can be easily supplemented..
+- If necessary, the definitions can be easily supplemented.
 - Result will be a REST API according standards.
 - But it's (unnecessarily) more work.
 
@@ -437,7 +426,7 @@ The **[service](internal/pkg/app/demo/service)** package implements service meth
 - [character.go](internal/pkg/app/demo/service/character.go)
 - [class.go](internal/pkg/app/demo/service/class.go)
 - [race.go](internal/pkg/app/demo/service/race.go)
-- [aggregated.go](internal/pkg/app/demo/service/aggregated.go)
+- [aggregated.go](internal/pkg/app/demo/service/aggregation.go)
 
 The **[playerbiz](internal/pkg/app/demo/biz/playerbiz)** package implements player business logic:
 - [player.go](internal/pkg/app/demo/biz/playerbiz/player.go)
