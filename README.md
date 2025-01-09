@@ -62,6 +62,31 @@ This repository contains a sample backend API implemented in Go as part of a job
 
 -------------------------------------
 
+### Summary
+
+- 🚀 Designed for rapid development in a small team with easy testing:
+	- Fast, high-quality development is enabled by the right technology choices.
+- ⚡ API structure defined using Protocol Buffers.
+	- Go server and JS/TS client are generated using ConnectRPC, read more.
+- 🤖 Development benefits from AI assistance:
+	- AI is used to modify or extend the API by adjusting Protocol Buffer definitions.
+	- Definitions are much shorter as a code itself, reducing issues with AI's context size limitations.
+	- The language is limited, decreasing the risk of errors.
+	- There is no variability in code style.
+	- 🕵️‍♂️ As a result, reviewing the generated definitions is much simpler than reviewing generated code. 
+    - Business logic code is also streamlined with AI, focusing solely on the logic itself.
+- ✔️ Automatic input/output validation:
+	- Validation rules are part of the Protocol Buffers definition.
+- 📊 OpenTelemetry standard manages logs, traces, and metrics:
+	- Data can be exported to various services.
+- ✍ Manual work was minimized also on the model side.
+	- The Dataverse model was used to generate Go entities and repositories.
+- ⏱️ Implementation took approximately 5MD.
+	- Most time was spent on Dataverse: studying and creating the code generator.
+	- Significant effort went into selecting technologies for the API.
+
+-------------------------------------
+
 ## Implementation Details
 
 ### Directory Structure
@@ -495,16 +520,3 @@ E2E tests are implemented using [ginkgo](https://github.com/onsi/ginkgo).
   - Both would be implemented as middleware in the API server.
 - Rate limiting and retry logic were not addressed.
 - Cascading deletion for `Player` -> `Character` -> `DiceRoll` was not implemented.
-
----------
-
-### Summary
-
-- Implementation took approximately 5MD.
-- Most time was spent on Dataverse: studying and creating the code generator.
-- Significant effort went into selecting technologies for the API.
-- The solution is designed for rapid development and straightforward testing.
-- Manual work was minimized, and definitions can be easily updated with AI assistance.
-- Seamless integration with the UI is ensured through the generated JS client.
-
-
