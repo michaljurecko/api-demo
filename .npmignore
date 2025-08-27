@@ -1,0 +1,4 @@
+*
+!.npmignore
+!package.json
+!api/gen/ts/**
