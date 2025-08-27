@@ -11,7 +11,7 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/michaljurecko/ch-demo/api/gen/go/demo/v1;api";
 option (gnostic.openapi.v3.document) = {
-  servers: {url: "http://localhost:8000"}
+  servers: {url: "/"}
 };
 
 service ApiService {
