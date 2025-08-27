@@ -9,7 +9,6 @@ import (
 	server "github.com/michaljurecko/ch-demo/internal/pkg/app/demo/server/config"
 	"github.com/michaljurecko/ch-demo/internal/pkg/common/dataverse/webapi"
 	logger "github.com/michaljurecko/ch-demo/internal/pkg/common/log/config"
-	redis "github.com/michaljurecko/ch-demo/internal/pkg/common/redis/config"
 	telemetry "github.com/michaljurecko/ch-demo/internal/pkg/common/telemetry/config"
 )
 
@@ -18,7 +17,6 @@ type Config struct {
 	Telemetry telemetry.Config `embed:"" prefix:"telemetry-"`
 	Server    server.Config    `embed:"" prefix:"server-"`
 	Model     webapi.Config    `embed:"" prefix:"model-"`
-	Redis     redis.Config     `embed:"" prefix:"redis-"`
 }
 
 type Decorator func(Config) (Config, error)

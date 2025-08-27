@@ -9,8 +9,6 @@ import (
 
 	"github.com/michaljurecko/ch-demo/internal/pkg/app/demo/biz/playerbiz"
 	"github.com/michaljurecko/ch-demo/internal/pkg/common/cache"
-	"github.com/michaljurecko/ch-demo/internal/pkg/common/distlock"
-
 	"github.com/michaljurecko/ch-demo/internal/pkg/common/cachestore"
 
 	"github.com/michaljurecko/ch-demo/api/gen/go/demo/v1"
@@ -34,9 +32,9 @@ type Service struct {
 	repo           *model.Repository
 	playerSvc      *playerbiz.Service
 	protoValidator *protovalidate.Validator
-	locker         *distlock.Locker
-	cacheStore     *cachestore.Store
-	playersCache   *cache.Marshaler[*api.ListPlayersAndCharactersResponse]
+	// locker         *distlock.Locker
+	cacheStore   *cachestore.Store
+	playersCache *cache.Marshaler[*api.ListPlayersAndCharactersResponse]
 }
 
 func New(
@@ -45,15 +43,15 @@ func New(
 	cfg config.Config,
 	repo *model.Repository,
 	cacheStore *cachestore.Store,
-	locker *distlock.Locker,
+	// locker *distlock.Locker,
 	playerSvc *playerbiz.Service,
 ) (*Service, error) {
 	// Init service dependencies
 	svc := &Service{
-		logger:       logger.With(slog.String(log.LoggerKey, "service")),
-		repo:         repo,
-		playerSvc:    playerSvc,
-		locker:       locker,
+		logger:    logger.With(slog.String(log.LoggerKey, "service")),
+		repo:      repo,
+		playerSvc: playerSvc,
+		// locker:       locker,
 		cacheStore:   cacheStore,
 		playersCache: cache.NewMarshaler[*api.ListPlayersAndCharactersResponse](cacheStore.Store()),
 	}

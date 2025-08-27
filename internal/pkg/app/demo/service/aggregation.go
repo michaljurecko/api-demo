@@ -25,16 +25,16 @@ func (s *Service) ListPlayersAndCharacters(
 	}
 
 	// If there is no cached response, obtain a distributed lock, only one request/node is building cache
-	lock, err := s.locker.Lock(ctx, PlayersAndCharactersCacheKey, DistLockTTL)
-	if err != nil {
-		s.logger.Error(ctx, "failed to obtain distributed lock", slog.Any(log.ErrorKey, err))
-	} else {
-		defer func() {
-			if err := lock.Unlock(ctx); err != nil {
-				s.logger.Error(ctx, "failed to unlock distributed lock", slog.Any(log.ErrorKey, err))
-			}
-		}()
-	}
+	// lock, err := s.locker.Lock(ctx, PlayersAndCharactersCacheKey, DistLockTTL)
+	// if err != nil {
+	// 	s.logger.Error(ctx, "failed to obtain distributed lock", slog.Any(log.ErrorKey, err))
+	// } else {
+	// 	defer func() {
+	// 		if err := lock.Unlock(ctx); err != nil {
+	// 			s.logger.Error(ctx, "failed to unlock distributed lock", slog.Any(log.ErrorKey, err))
+	// 		}
+	// 	}()
+	// }
 
 	// Try to get the cached response again, it might have been built by another request/node
 	response, err = s.playersCache.Get(ctx, PlayersAndCharactersCacheKey)

@@ -60,16 +60,13 @@ func NewServer(ctx context.Context) (*server.Server, error) {
 		return nil, err
 	}
 	repository := model.NewRepository(webapiClient)
-	config6 := configConfig.Redis
-	redisClient, err := redis.NewClient(ctx, stack, logger, config6, tracerProvider, meterProvider)
+	store, err := cachestore.New()
 	if err != nil {
 		return nil, err
 	}
-	store := cachestore.New(redisClient)
-	locker := distlock.NewLocker(redisClient)
 	aresClient := ares.NewClient(client)
 	playerbizService := playerbiz.NewService(aresClient)
-	serviceService, err := service.New(ctx, logger, configConfig, repository, store, locker, playerbizService)
+	serviceService, err := service.New(ctx, logger, configConfig, repository, store, playerbizService)
 	if err != nil {
 		return nil, err
 	}
@@ -111,16 +108,13 @@ func NewServerForTest(ctx context.Context, cfgFn config.Decorator) (*server.Serv
 		return nil, err
 	}
 	repository := model.NewRepository(webapiClient)
-	config6 := configConfig.Redis
-	redisClient, err := redis.NewClient(ctx, stack, logger, config6, tracerProvider, meterProvider)
+	store, err := cachestore.New()
 	if err != nil {
 		return nil, err
 	}
-	store := cachestore.New(redisClient)
-	locker := distlock.NewLocker(redisClient)
 	aresClient := ares.NewClient(client)
 	playerbizService := playerbiz.NewService(aresClient)
-	serviceService, err := service.New(ctx, logger, configConfig, repository, store, locker, playerbizService)
+	serviceService, err := service.New(ctx, logger, configConfig, repository, store, playerbizService)
 	if err != nil {
 		return nil, err
 	}

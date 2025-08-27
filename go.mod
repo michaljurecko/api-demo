@@ -13,8 +13,9 @@ require (
 	github.com/bsm/redislock v0.9.4
 	github.com/bufbuild/protovalidate-go v0.8.2
 	github.com/dave/jennifer v1.7.1
+	github.com/dgraph-io/ristretto v0.2.0
 	github.com/eko/gocache/lib/v4 v4.1.6
-	github.com/eko/gocache/store/redis/v4 v4.2.2
+	github.com/eko/gocache/store/ristretto/v4 v4.2.2
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/google/gnostic v0.7.0
 	github.com/google/uuid v1.6.0
@@ -49,6 +50,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
+	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
@@ -63,6 +65,7 @@ require (
 	github.com/google/pprof v0.0.0-20241210010833-40e02aabc2ad // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.24.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.7.0 // indirect
 	github.com/samber/lo v1.47.0 // indirect

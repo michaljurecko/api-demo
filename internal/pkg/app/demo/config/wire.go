@@ -6,5 +6,5 @@ import (
 
 var WireSet = wire.NewSet(
 	// Export partial configs
-	wire.FieldsOf(new(Config), "Logger", "Telemetry", "Server", "Model", "Redis"),
+	wire.FieldsOf(new(Config), "Logger", "Telemetry", "Server", "Model"),
 )
