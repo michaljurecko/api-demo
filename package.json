@@ -1,0 +1,12 @@
+{
+  "name": "@mj/api-demo",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@connectrpc/connect": "*"
+  },
+  "optionalDependencies": {
+    "@connectrpc/connect-web": "*",
+    "@connectrpc/connect-node": "*"
+  }
+}
